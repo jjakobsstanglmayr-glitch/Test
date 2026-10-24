@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel><title>MarketWatch Top Stories (Demo)</title>
+<item><title>Helix Therapeutics stock soars after FDA approves lung cancer drug Velorin</title>
+<link>https://demo.invalid/marketwatch/helix-soars</link>
+<description>Shares of Helix Therapeutics jumped in premarket trading after the approval.</description>
+<pubDate>{{RFC:-28h}}</pubDate></item>
+<item><title>Oil prices slip on demand worries</title>
+<link>https://demo.invalid/marketwatch/oil</link>
+<description>Crude futures fell for a second day.</description>
+<pubDate>{{RFC:-10h}}</pubDate></item>
+</channel></rss>

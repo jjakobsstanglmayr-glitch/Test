@@ -1,0 +1,14 @@
+# Meine offenen Positionen – werden bei jedem Lauf auf neue News und Insider-Verkäufe geprüft.
+# Ticker wie in yfinance (deutsche Werte z. B. mit ".DE").
+positionen:
+  - ticker: AAPL
+    stueck: 20
+    einstieg: 225.40
+    stop: 212.00
+    datum: 2026-09-15
+    notiz: Beispielposition – bitte anpassen
+  - ticker: SAP.DE
+    stueck: 15
+    einstieg: 238.10
+    stop: 224.50
+    datum: 2026-10-01

@@ -1,0 +1,7 @@
+{"cik": "1900002", "name": "Quantum Grid Corp (Demo)", "filings": {"recent": {
+ "accessionNumber": ["0001900002-26-000013", "0001900002-26-000012", "0001900002-26-000011"],
+ "filingDate": ["{{ISO:-2d}}", "{{ISO:-3d}}", "{{ISO:-4d}}"],
+ "acceptanceDateTime": ["", "", ""],
+ "form": ["4", "4", "4"],
+ "items": ["", "", ""],
+ "primaryDocument": ["xslF345X05/form4.xml", "xslF345X05/form4.xml", "xslF345X05/form4.xml"]}}}

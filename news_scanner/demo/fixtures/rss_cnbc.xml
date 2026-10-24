@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel><title>CNBC Top News (Demo)</title>
+<item><title>FDA approves Helix Therapeutics' lung cancer drug Velorin, shares surge</title>
+<link>https://demo.invalid/cnbc/helix-fda-approval</link>
+<description>Helix Therapeutics (HLXT) won FDA approval for Velorin, its first commercial product, beating analyst expectations on timing.</description>
+<pubDate>{{RFC:-29h}}</pubDate></item>
+<item><title>Stocks close mixed as investors await Fed decision</title>
+<link>https://demo.invalid/cnbc/markets-mixed</link>
+<description>The S&amp;P 500 ended little changed on Friday.</description>
+<pubDate>{{RFC:-26h}}</pubDate></item>
+<item><title>Apex Cloud is reportedly in talks to be acquired by a private equity group, people familiar say</title>
+<link>https://demo.invalid/cnbc/apex-cloud-talks</link>
+<description>Apex Cloud (APXC) is exploring a sale; no deal is certain, according to people familiar with the matter.</description>
+<pubDate>{{RFC:-20h}}</pubDate></item>
+</channel></rss>

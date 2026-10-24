@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel><title>Handelsblatt Finanzen (Demo)</title>
+<item><title>Nordwind Energie hebt Prognose an – Quartalszahlen übertreffen Erwartungen</title>
+<link>https://demo.invalid/handelsblatt/nordwind-prognose</link>
+<description>Der Windparkbetreiber Nordwind Energie erhöht nach einem starken dritten Quartal die Jahresprognose.</description>
+<pubDate>{{RFC:-2h}}</pubDate></item>
+<item><title>Bavaria Robotics senkt Prognose – Aktie bricht ein</title>
+<link>https://demo.invalid/handelsblatt/bavaria-warnung</link>
+<description>Gewinnwarnung: Bavaria Robotics leidet unter schwacher Nachfrage aus der Autoindustrie.</description>
+<pubDate>{{RFC:-27h}}</pubDate></item>
+</channel></rss>

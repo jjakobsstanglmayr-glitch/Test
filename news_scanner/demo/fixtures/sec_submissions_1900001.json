@@ -1,0 +1,7 @@
+{"cik": "1900001", "name": "Helix Therapeutics Inc. (Demo)", "filings": {"recent": {
+ "accessionNumber": ["0001900001-26-000031", "0001900001-26-000030"],
+ "filingDate": ["{{ISO:-1d}}", "{{ISO:-1d}}"],
+ "acceptanceDateTime": ["{{ISOTS:-29h}}", "{{ISOTS:-25h}}"],
+ "form": ["8-K", "4"],
+ "items": ["7.01,8.01,9.01", ""],
+ "primaryDocument": ["hlxt-8k.htm", "xslF345X05/form4.xml"]}}}

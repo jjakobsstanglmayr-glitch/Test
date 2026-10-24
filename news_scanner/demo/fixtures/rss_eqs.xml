@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel><title>EQS News Ad-hoc (Demo)</title>
+<item><title>EQS-Adhoc: Nordwind Energie AG hebt Prognose für das Geschäftsjahr an</title>
+<link>https://demo.invalid/eqs/nordwind-adhoc</link>
+<description>Nordwind Energie AG erhöht die EBITDA-Prognose auf 410–430 Mio. EUR nach einem Rekordquartal.</description>
+<pubDate>{{RFC:-3h}}</pubDate></item>
+<item><title>EQS-Adhoc: Bavaria Robotics AG senkt Umsatz- und Ergebnisprognose</title>
+<link>https://demo.invalid/eqs/bavaria-adhoc</link>
+<description>Gewinnwarnung wegen schwacher Auftragslage.</description>
+<pubDate>{{RFC:-28h}}</pubDate></item>
+</channel></rss>

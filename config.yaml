@@ -1,0 +1,109 @@
+# News-Scanner – Konfiguration
+# Alle Quellen sind kostenlos. Jede Quelle lässt sich mit "aktiv: false" abschalten.
+
+watchlist:
+  # ticker: Kürzel für yfinance (deutsche Werte mit ".DE" für Xetra)
+  # name/aliases: Suchbegriffe, um Meldungen dem Ticker zuzuordnen
+  # isin: nötig für die BaFin-Abfrage (nur land: DE)
+  - {ticker: AAPL, name: Apple, aliases: [iPhone], land: US}
+  - {ticker: NVDA, name: Nvidia, aliases: [NVIDIA], land: US}
+  - {ticker: MSFT, name: Microsoft, land: US}
+  - {ticker: TSLA, name: Tesla, land: US}
+  - {ticker: PFE, name: Pfizer, land: US}
+  - {ticker: SAP.DE, name: SAP, isin: DE0007164600, land: DE, reddit_ticker: SAP}
+  - {ticker: SIE.DE, name: Siemens, aliases: [Siemens AG], isin: DE0007236101, land: DE}
+  - {ticker: RHM.DE, name: Rheinmetall, isin: DE0007030009, land: DE}
+  - {ticker: ALV.DE, name: Allianz, isin: DE0008404005, land: DE}
+
+zeitraum:
+  news_stunden: 36      # wie weit Nachrichten zurückreichen
+  insider_tage: 14      # wie weit Insider-Geschäfte zurückreichen
+
+quellen:
+  rss:
+    aktiv: true
+    feeds:
+      - {name: CNBC, url: "https://www.cnbc.com/id/100003114/device/rss/rss.html"}
+      - {name: CNBC Finance, url: "https://www.cnbc.com/id/10000664/device/rss/rss.html"}
+      - {name: MarketWatch, url: "https://feeds.content.dowjones.io/public/rss/mw_topstories"}
+      - {name: Yahoo Finance, url: "https://finance.yahoo.com/news/rssindex"}
+      - {name: Handelsblatt, url: "https://www.handelsblatt.com/contentexport/feed/finanzen"}
+      - {name: finanzen.net, url: "https://www.finanzen.net/rss/news"}
+      - {name: Investing.com, url: "https://www.investing.com/rss/news_25.rss"}
+
+  google_news:
+    aktiv: true
+    # Pro Watchlist-Wert ein Feed: "<Name>" (zusatz_suchbegriff)
+    zusatz_suchbegriff: "Aktie OR stock OR shares"
+    # Reuters bietet keine eigenen RSS-Feeds mehr an – daher über Google News mit site:-Filter.
+    seiten:
+      - {name: Reuters, domain: reuters.com, suche: "stocks OR shares"}
+
+  adhoc:
+    aktiv: true
+    feeds:
+      # EQS News (früher DGAP). URL bei Bedarf an den aktuellen Feed anpassen.
+      - {name: EQS Ad-hoc, url: "https://www.eqs-news.com/de/feed/?newsType=ad-hoc", art: adhoc}
+
+  sec:
+    aktiv: true
+    # Pflicht laut SEC: "Name/Firma E-Mail". Alternativ Umgebungsvariable SEC_USER_AGENT.
+    user_agent: "NewsScanner Max Mustermann max.mustermann@example.com"
+    max_form4_pro_ticker: 15
+    marktweit_form4: true     # zusätzlich die neuesten Form-4-Meldungen aller US-Firmen prüfen
+    marktweit_anzahl: 40
+
+  bafin:
+    aktiv: true
+    # CSV-Export der BaFin-Datenbank; {isin} wird ersetzt. Nur bei Formatänderungen anpassen.
+    # url: "https://portal.mvp.bafin.de/database/DealingsInfo/sucheForm.do?...&emittentIsin={isin}&d-4000784-e=1&6578706f7274=1"
+
+  reddit:
+    aktiv: true
+    # Kostenlose "script"-App unter https://www.reddit.com/prefs/apps anlegen.
+    # Besser per Umgebungsvariablen REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET setzen.
+    client_id: ""
+    client_secret: ""
+    user_agent: "python:news-scanner:1.0 (by /u/DEIN_REDDIT_NAME)"
+    subreddits: [stocks, wallstreetbets, mauerstrassenwetten]
+    max_seiten: 4             # je 100 Beiträge pro Seite
+    min_erwaehnungen: 5       # ab so vielen Erwähnungen zählt ein Anstieg als "Buzz"
+
+kurse:
+  zeitraum: 6mo
+  pause_sekunden: 0.5
+
+insider:
+  mindestbetrag: 25000            # kleinere Kauf-Summen je Unternehmen ignorieren
+  grosser_betrag: 250000
+  cluster_tage: 10
+  cluster_mindestanzahl: 2
+  gehalt_verhaeltnis_auffaellig: 0.5   # Kauf ≥ 50 % des geschätzten Jahresgehalts
+  # Grobe Schätzungen des Jahres-Grundgehalts je Rolle (Währung der Meldung).
+  gehalt_schaetzung: {CEO: 1500000, CFO: 800000, Officer: 500000, Director: 300000, Vorstand: 900000, Aufsichtsrat: 150000, default: 400000}
+  # Genauere Werte je Ticker (z. B. aus Proxy Statement/Vergütungsbericht):
+  gehalt_pro_ticker: {}
+  #   AAPL: {CEO: 3000000}
+
+handelsplan:
+  stop_atr: 1.5     # Stop-Loss = 1,5 × ATR(14)
+  ziel1_r: 1.5      # Kursziel 1 = 1,5 × Risiko
+  ziel2_r: 3.0      # Kursziel 2 = 3 × Risiko
+
+ausgabe:
+  ordner: reports
+  max_kandidaten: 10
+  max_insider: 10
+  min_signalstaerke: 3
+
+netzwerk:
+  user_agent: "NewsScanner/1.0 (privates Recherche-Tool)"
+  timeout_sekunden: 20
+  wiederholungen: 3
+  standard_abstand_sekunden: 1.0
+  # Mindestabstand zwischen zwei Anfragen an denselben Host
+  mindestabstand_sekunden:
+    sec.gov: 0.15            # SEC erlaubt max. 10 Anfragen/Sekunde
+    reddit.com: 1.0          # Reddit: 100 Anfragen/Minute (OAuth)
+    news.google.com: 2.0
+    portal.mvp.bafin.de: 2.0

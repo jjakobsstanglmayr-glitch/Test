@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel><title>finanzen.net News (Demo)</title>
+<item><title>Nordwind Energie-Aktie: Prognose angehoben, Q3-Zahlen übertreffen Erwartungen</title>
+<link>https://demo.invalid/finanzen/nordwind</link>
+<description>Nordwind Energie AG hat im dritten Quartal Umsatz und Gewinn deutlich gesteigert.</description>
+<pubDate>{{RFC:-1h}}</pubDate></item>
+<item><title>DAX schließt kaum verändert</title>
+<link>https://demo.invalid/finanzen/dax</link>
+<description>Ruhiger Handel zum Wochenschluss.</description>
+<pubDate>{{RFC:-26h}}</pubDate></item>
+</channel></rss>

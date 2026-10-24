@@ -1,0 +1,38 @@
+# Demo-Konfiguration (erfundene Unternehmen) – genutzt von: python -m news_scanner --demo
+watchlist:
+  - {ticker: HLXT, name: Helix Therapeutics, aliases: [Helix], land: US}
+  - {ticker: QGRD, name: Quantum Grid, land: US}
+  - {ticker: APXC, name: Apex Cloud, land: US}
+  - {ticker: NWE.DE, name: Nordwind Energie, aliases: [Nordwind], isin: DE000DEMO0001, land: DE, reddit_ticker: NWE}
+  - {ticker: BVR.DE, name: Bavaria Robotics, isin: DE000DEMO0002, land: DE, reddit_ticker: BVR}
+
+zeitraum: {news_stunden: 36, insider_tage: 14}
+
+quellen:
+  rss:
+    feeds:
+      - {name: CNBC, url: "https://www.cnbc.com/id/100003114/device/rss/rss.html"}
+      - {name: MarketWatch, url: "https://feeds.content.dowjones.io/public/rss/mw_topstories"}
+      - {name: Yahoo Finance, url: "https://finance.yahoo.com/news/rssindex"}
+      - {name: Handelsblatt, url: "https://www.handelsblatt.com/contentexport/feed/finanzen"}
+      - {name: finanzen.net, url: "https://www.finanzen.net/rss/news"}
+      - {name: Investing.com, url: "https://www.investing.com/rss/news_25.rss"}
+  google_news:
+    zusatz_suchbegriff: "Aktie OR stock"
+    seiten: [{name: Reuters, domain: reuters.com}]
+  adhoc:
+    feeds: [{name: EQS Ad-hoc, url: "https://www.eqs-news.com/de/feed/?newsType=ad-hoc", art: adhoc}]
+  sec: {marktweit_form4: true, marktweit_anzahl: 40}
+  bafin: {}
+  reddit:
+    subreddits: [stocks, wallstreetbets, mauerstrassenwetten]
+    min_erwaehnungen: 5
+
+insider:
+  mindestbetrag: 25000
+  cluster_tage: 10
+  gehalt_verhaeltnis_auffaellig: 0.5
+  gehalt_schaetzung: {CEO: 1500000, CFO: 800000, Officer: 500000, Director: 300000, default: 400000}
+
+handelsplan: {stop_atr: 1.5, ziel1_r: 1.5, ziel2_r: 3.0}
+ausgabe: {ordner: reports, max_kandidaten: 10, min_signalstaerke: 1}
