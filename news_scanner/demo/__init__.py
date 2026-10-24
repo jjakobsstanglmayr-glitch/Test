@@ -45,6 +45,7 @@ def render_placeholders(text: str, now: datetime | None = None) -> str:
 class _Response:
     def __init__(self, text: str):
         self.text = text
+        self.content = text.encode("utf-8")
         self.status_code = 200
 
     def json(self):

@@ -15,16 +15,25 @@ from news_scanner.models import NewsItem
 
 
 def assign_tickers(items: list[NewsItem], watchlist: list[WatchItem]) -> None:
+    """Ordnet Meldungen über Cashtag, Börsenkürzel in Klammern oder Firmennamen zu.
+
+    Begriffe aus ``ausschluss`` (z. B. "Siemens Energy" für Siemens) werden vorher entfernt.
+    """
     patterns = []
     for w in watchlist:
         sym = re.escape(w.ticker.split(".")[0])
-        parts = [rf"\${sym}\b", rf"\((?:NASDAQ:|NYSE:|XETRA:)?\s*{sym}\)"]
+        parts = [rf"\${sym}\b", rf"\((?:NASDAQ:|NYSE:|XETRA:|ETR:)?\s*{sym}\)"]
         parts += [rf"\b{re.escape(t)}\b" for t in w.search_terms]
-        patterns.append((w.ticker, re.compile("|".join(parts), re.I)))
+        excl = [rf"(?i:\b{re.escape(x)}\b)" for x in w.exclude]
+        # Name gefolgt von einem fremden Kürzel, z. B. "Apple Hospitality REIT (APLE)"
+        excl += [rf"\b{re.escape(t)}\b[^()]{{0,40}}\((?!{sym}\))(?:[A-Z]+:\s*)?[A-Z][A-Z.]{{0,6}}\)"
+                 for t in w.search_terms]
+        exclude = re.compile("|".join(excl))
+        patterns.append((w.ticker, re.compile("|".join(parts), re.I), exclude))
     for item in items:
         text = f"{item.title} {item.summary}"
-        for ticker, pat in patterns:
-            if pat.search(text):
+        for ticker, pat, exclude in patterns:
+            if pat.search(exclude.sub(" ", text)):
                 item.tickers.add(ticker)
 
 
@@ -32,7 +41,9 @@ def assign_tickers(items: list[NewsItem], watchlist: list[WatchItem]) -> None:
 
 
 _STOP = {"the", "a", "an", "of", "to", "in", "on", "for", "and", "as", "at", "is", "its", "with",
-         "der", "die", "das", "und", "im", "in", "mit", "für", "auf", "von", "zu", "den", "dem", "ein", "eine"}
+         "der", "die", "das", "und", "im", "in", "mit", "für", "auf", "von", "zu", "den", "dem", "ein", "eine",
+         # Allerweltswörter in Finanz-Schlagzeilen, die allein keine gleiche Meldung belegen
+         "stock", "stocks", "shares", "share", "aktie", "aktien", "inc", "corp", "ag", "se", "co"}
 
 
 def _normalize(title: str) -> str:
@@ -49,9 +60,14 @@ def similar(a: str, b: str) -> bool:
     ta, tb = _tokens(a), _tokens(b)
     if not ta or not tb:
         return False
-    jaccard = len(ta & tb) / len(ta | tb)
-    overlap = len(ta & tb) / min(len(ta), len(tb))
-    return jaccard >= 0.5 or overlap >= 0.75 or SequenceMatcher(None, _normalize(a), _normalize(b)).ratio() >= 0.8
+    shared = len(ta & tb)
+    jaccard = shared / len(ta | tb)
+    overlap = shared / min(len(ta), len(tb))
+    return (
+        (jaccard >= 0.5 and shared >= 3)
+        or (overlap >= 0.8 and shared >= 4)
+        or SequenceMatcher(None, _normalize(a), _normalize(b)).ratio() >= 0.85
+    )
 
 
 @dataclass
@@ -101,11 +117,12 @@ def cluster(items: list[NewsItem]) -> list[Story]:
 
 TIERS = {
     5: ("sec", "bafin", "eqs", "dgap", "reuters", "bloomberg", "associated press", "dow jones", "business wire",
-        "globenewswire", "pr newswire", "ad-hoc"),
+        "globenewswire", "pr newswire"),
     4: ("cnbc", "marketwatch", "wall street journal", "wsj", "financial times", "handelsblatt", "barron",
         "faz", "börsen-zeitung", "boersen-zeitung", "nikkei"),
     3: ("yahoo", "investing.com", "finanzen.net", "seeking alpha", "benzinga", "motley fool", "der aktionär",
-        "onvista", "ariva", "zacks", "tipranks", "google news"),
+        "onvista", "ariva", "zacks", "tipranks", "barron", "investor's business daily", "welt",
+        "spiegel", "tagesschau", "n-tv", "manager magazin", "wirtschaftswoche", "ad-hoc-news"),
 }
 
 RUMOR_RE = re.compile(
@@ -121,7 +138,8 @@ OFFICIAL_KINDS = {"8-K", "adhoc"}
 def source_tier(item: NewsItem) -> int:
     if item.kind in OFFICIAL_KINDS:
         return 5
-    name = f"{item.publisher} {item.source}".lower()
+    # Bei Google News zählt nur der eigentliche Herausgeber, nicht Google als Vermittler.
+    name = (item.publisher if item.source.startswith("Google News") else f"{item.publisher} {item.source}").lower()
     for tier, keys in TIERS.items():
         if any(k in name for k in keys):
             return tier
@@ -142,52 +160,74 @@ def rate_credibility(story: Story) -> None:
 
 CATALYSTS: dict[str, tuple[float, re.Pattern]] = {
     "Übernahme/Fusion": (3.0, re.compile(
-        r"acquir|merger|takeover|buyout|tender offer|to buy .* for \$|deal to buy|übernahme|übernimmt|fusion|"
-        r"kaufangebot|übernahmeangebot|8-K:.*(Übernahme|Kontrollwechsel)", re.I)),
-    "Prognoseänderung": (2.5, re.compile(
-        r"raises? (its |full[- ]year )?(guidance|outlook|forecast)|(cuts?|lowers?) (its |full[- ]year )?(guidance|outlook|forecast)|"
-        r"profit warning|prognose (an|erhöht|angehoben|gesenkt)|(hebt|erhöht|senkt|kappt) .{0,40}prognose|"
-        r"gewinnwarnung|umsatzwarnung", re.I)),
+        r"\bto acquire\b|acquisition of|agrees? to (buy|acquire)|merger|takeover|buyout|tender offer|deal to buy|"
+        r"to be acquired|übernahme|übernimmt|fusion|kaufangebot|übernahmeangebot|8-K:.*(Übernahme|Kontrollwechsel)", re.I)),
     "Zulassung": (3.0, re.compile(
-        r"\bfda\b|approv|clearance|cleared|\bema\b|chmp|breakthrough designation|zulassung|zugelassen|genehmig", re.I)),
+        r"\bfda\b.*(approv|clear|reject)|approv\w* by (the )?(fda|ema)|\bema\b|chmp|breakthrough designation|"
+        r"zulassung|zugelassen", re.I)),
+    "Prognoseänderung": (2.5, re.compile(
+        r"raises? (its |full[- ]year |annual )?(guidance|outlook|forecast)|(cuts?|lowers?|slashes) (its |full[- ]year |annual )?"
+        r"(guidance|outlook|forecast)|profit warning|prognose (an|erhöht|angehoben|gesenkt|bestätigt)|"
+        r"(hebt|erhöht|senkt|kappt|bestätigt) .{0,40}prognose|gewinnwarnung|umsatzwarnung", re.I)),
     "Quartalszahlen": (2.5, re.compile(
-        r"earnings|quarterly|results|\bq[1-4]\b|revenue|eps\b|profit|guidance|outlook|forecast|"
-        r"quartal|zahlen|umsatz|gewinn|prognose|ausblick|ergebnis|8-K:.*Quartals", re.I)),
+        r"(reports?|reported|posts?|delivers?) .{0,40}(results|earnings|quarter|revenue|profit)|"
+        r"(beats?|misses?|tops?|surpass\w*|exceeds?) .{0,30}(estimates|expectations|forecasts?)|"
+        r"(q[1-4]|quarterly|third[- ]quarter|second[- ]quarter|first[- ]quarter|fourth[- ]quarter) (results|earnings|revenue|profit)|"
+        r"earnings (beat|miss)|quartalszahlen|legt .{0,20}zahlen vor|nach (den )?zahlen|meldet .{0,30}quartal|"
+        r"(übertrifft|verfehlt) .{0,30}erwartungen|8-K:.*Quartals", re.I)),
     "Hochstufung": (2.0, re.compile(
-        r"upgrade|raises? (its )?(price )?target|price target (raised|hike)|to (buy|outperform|overweight)|"
-        r"initiat\w+ .* (buy|outperform|overweight)|hochgestuft|hochstufung|stuft .{0,40}\bhoch\b|kursziel (angehoben|erhöht)|"
-        r"auf (kaufen|buy|outperform|overweight)", re.I)),
+        r"upgrad\w*|raises? (its )?price target|price target (raised|hike|boost)|"
+        r"initiat\w+ .{0,40}(buy|outperform|overweight)|hochgestuft|hochstufung|stuft .{0,40}\bhoch\b|"
+        r"kursziel (angehoben|erhöht)|hebt .{0,30}kursziel", re.I)),
     "Herabstufung": (2.0, re.compile(
-        r"downgrade|cuts? (its )?(price )?target|price target (cut|lowered)|to (sell|underperform|underweight|neutral)|"
-        r"herabgestuft|abgestuft|abstufung|stuft .{0,40}\bab\b|kursziel (gesenkt|reduziert)|auf (verkaufen|sell|underweight)", re.I)),
+        r"downgrad\w*|cuts? (its )?price target|price target (cut|lowered)|"
+        r"herabgestuft|abgestuft|abstufung|stuft .{0,40}\bab\b|kursziel (gesenkt|reduziert)|senkt .{0,30}kursziel", re.I)),
     "Management-Wechsel": (1.0, re.compile(
-        r"\bceo\b.*(steps down|resign|depart|appoint|named)|chief executive|vorstandschef|rücktritt|"
-        r"8-K:.*Management", re.I)),
+        r"\b(ceo|cfo)\b.{0,30}(steps down|resign|depart|to leave|appoint|named)|"
+        r"(vorstandschef|finanzchef|ceo|cfo) .{0,30}(rücktritt|tritt zurück|verlässt|abberufen)|8-K:.*Management", re.I)),
     "Großauftrag/Partnerschaft": (1.5, re.compile(
-        r"contract|partnership|collaborat|agreement|auftrag|partnerschaft|kooperation|8-K:.*Vertrag", re.I)),
+        r"(wins?|awarded|secures?|signs?) .{0,40}(contract|deal|order)|partnership with|"
+        r"großauftrag|auftrag (über|im wert|von)|erhält .{0,30}auftrag|partnerschaft mit|8-K:.*Vertrag", re.I)),
     "Rechtliches/Untersuchung": (1.5, re.compile(
-        r"lawsuit|investigation|probe|sec charges|recall|antitrust|klage|ermittlung|rückruf|kartell", re.I)),
+        r"lawsuit|investigation|probe|sec charges|recall|antitrust|klage|ermittlung|rückruf|kartellverfahren", re.I)),
     "Kapitalmaßnahme": (1.0, re.compile(
-        r"buyback|share repurchase|offering|dividend|rückkauf|kapitalerhöhung|dividende", re.I)),
+        r"buyback|share repurchase|(raises?|hikes?|cuts?|suspends?) .{0,20}dividend|special dividend|"
+        r"aktienrückkauf|kapitalerhöhung|sonderdividende|dividende (erhöht|gesenkt|gestrichen)|"
+        r"(erhöht|senkt|streicht) .{0,20}dividende", re.I)),
 }
+
+# Ratgeber, Rückblicke, Vorschauen und 13F-Meldungen von Fonds sind keine Katalysatoren.
+NOISE = re.compile(
+    r"stocks? to (buy|sell|watch)|should you|is it (time|too late)|here'?s (why|what|how)|what to (expect|watch)|"
+    r"need to know|days away|ahead of (its |the )?(earnings|results)|earnings preview|"
+    r"(shares|stock|stake|position)( in)?.{0,40}(acquired|sold|bought|purchased|raised|lowered|trimmed) by|"
+    r"(acquires?|sells?|buys?) (new )?(shares|stake|position)|holdings? in|"
+    r"better .{0,20}stock|millionaire|(buy|hold) (and hold|forever)|take profits|"
+    r"so viel hätte|hätte .{0,30}(investition|gebracht)|lohnt sich|vor (den )?zahlen|was anleger wissen",
+    re.I,
+)
 
 POSITIVE = re.compile(
     r"beat|beats|tops|surpass|exceed|raises|raised|record|surge|soar|jump|rall|climb|upgrade|approv|"
     r"strong|outperform|wins?\b|buyback|übertrifft|übertroffen|hebt .* an|angehoben|erhöht|rekord|steigt|springt|"
-    r"klettert|hochgestuft|zugelassen|stark|gewinnt",
+    r"klettert|hochgestuft|zugelassen|stark|gewinnt|kursgewinn|legt zu|im plus|fester|hebt .{0,30}an",
     re.I,
 )
 NEGATIVE = re.compile(
     r"miss|misses|cuts?\b|lower|weak|plunge|tumble|slump|fall|drop|sink|downgrade|reject|recall|probe|"
     r"lawsuit|warn|delay|halt|layoff|verfehlt|senkt|gesenkt|schwach|bricht ein|fällt|sinkt|stürzt|abgestuft|"
-    r"warnung|gewinnwarnung|verzöger|abgelehnt|klage|stellenabbau",
+    r"warnung|gewinnwarnung|verzöger|abgelehnt|klage|stellenabbau|kursverlust|verliert|im minus|gibt nach|rutscht",
     re.I,
 )
 
 
 def detect_catalysts(story: Story) -> None:
-    text = " ".join(f"{i.title} {i.summary}" for i in story.items)
-    titles = " ".join(i.title for i in story.items)
+    relevant = [i for i in story.items if not NOISE.search(i.title)]
+    if not relevant:
+        story.catalysts, story.direction, story.direction_score = [], "Neutral", 0
+        return
+    text = " ".join(f"{i.title} {i.summary}" for i in relevant)
+    titles = " ".join(i.title for i in relevant)
     found = [name for name, (_, pat) in CATALYSTS.items() if pat.search(titles)]
     if not found:
         found = [name for name, (_, pat) in CATALYSTS.items() if pat.search(text)]

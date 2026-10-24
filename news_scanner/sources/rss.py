@@ -95,12 +95,12 @@ def google_news_feeds(watchlist: list[WatchItem], cfg: dict) -> list[dict]:
         url = GOOGLE_NEWS_URL.format(query=quote_plus(query), hl=hl, gl=gl, lang=lang)
         feeds.append({"name": f"Google News {w.ticker}", "url": url, "ticker": w.ticker})
     for site in cfg.get("seiten", []):
-        # Z. B. Reuters, das keine eigenen RSS-Feeds mehr anbietet.
-        url = GOOGLE_NEWS_URL.format(
-            query=quote_plus(f"site:{site['domain']} {site.get('suche', 'stocks')} when:1d"),
-            hl="en-US", gl="US", lang="en",
-        )
-        feeds.append({"name": f"Google News {site['name']}", "url": url})
+        # Für Quellen ohne (erreichbaren) eigenen RSS-Feed, z. B. Reuters.
+        # Entweder "domain" (+ "suche") oder eine freie "abfrage"; "sprache: de" für deutsche Treffer.
+        query = site.get("abfrage") or f"site:{site['domain']} {site.get('suche', 'stocks')} when:1d"
+        hl, gl, lang = ("de", "DE", "de") if site.get("sprache") == "de" else ("en-US", "US", "en")
+        url = GOOGLE_NEWS_URL.format(query=quote_plus(query), hl=hl, gl=gl, lang=lang)
+        feeds.append({"name": f"Google News {site['name']}", "url": url, "art": site.get("art", "news")})
     return feeds
 
 
@@ -111,10 +111,9 @@ def fetch_google_news(
     items: list[NewsItem] = []
     statuses: list[SourceStatus] = []
     for feed in feeds:
+        # Die Zuordnung zum Ticker übernimmt assign_tickers anhand des Textes – so greifen
+        # auch die Ausschlussbegriffe (Google liefert z. B. für "Siemens" auch Siemens Energy).
         got, st = fetch_feeds(http, [feed], max_age_hours)
-        if feed.get("ticker"):
-            for item in got:
-                item.tickers.add(feed["ticker"])
         items.extend(got)
         statuses.extend(st)
     return items, statuses

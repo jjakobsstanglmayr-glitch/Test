@@ -19,6 +19,7 @@ class WatchItem:
     land: str = "US"
     sec_ticker: str = ""  # Ticker an der US-Börse für EDGAR (Standard: ticker)
     reddit_ticker: str = ""  # Kürzel, das auf Reddit verwendet wird
+    exclude: list[str] = field(default_factory=list)  # z. B. "Siemens Energy" bei Siemens
 
     @property
     def search_terms(self) -> list[str]:
@@ -63,6 +64,7 @@ def _watch_item(raw: dict[str, Any]) -> WatchItem:
         land=raw.get("land", "US").upper(),
         sec_ticker=str(raw.get("sec_ticker", ticker if raw.get("land", "US").upper() == "US" else "")).upper(),
         reddit_ticker=str(raw.get("reddit_ticker", ticker.split(".")[0])).upper(),
+        exclude=list(raw.get("ausschluss", [])),
     )
 
 

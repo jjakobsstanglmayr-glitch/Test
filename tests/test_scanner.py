@@ -329,3 +329,46 @@ def test_http_unreachable_host_fails_fast_afterwards(monkeypatch):
         with pytest.raises(HttpError, match="Keine Verbindung zu dead.invalid"):
             client.get("https://dead.invalid/feed")
     assert len(calls) == 2  # nur der erste Aufruf versucht es (mit 1 Wiederholung)
+
+
+# ------------------------------------------------------------------ Regressionen aus echten Schlagzeilen
+
+
+@pytest.mark.parametrize("title", [
+    "Apple Inc. $AAPL Stock Acquired by Stone Summit Wealth LLC",
+    "Better Dividend Stock to Buy and Hold: Pfizer or Bristol Myers Squibb?",
+    "Microsoft's Earnings Are Days Away: Here's What Investors Need to Know",
+    "Siemens-Aktie: Zweiter Tag in Folge Gewinne",
+    "Allianz-Aktie: So viel hätte eine Investition in Allianz von vor einem Jahr abgeworfen",
+])
+def test_noise_headlines_have_no_catalyst(title):
+    s = Story([news(title)])
+    detect_catalysts(s)
+    assert s.catalysts == []
+
+
+def test_exclusion_terms_prevent_wrong_ticker():
+    wl = [WatchItem("SIE.DE", "Siemens", exclude=["Siemens Energy"], land="DE")]
+    items = [news("Siemens Energy-Aktie: Irrsinn!"), news("Siemens hebt Prognose an")]
+    assign_tickers(items, wl)
+    assert not items[0].tickers and items[1].tickers == {"SIE.DE"}
+
+
+def test_short_titles_with_common_words_not_merged():
+    items = [news("Siemens Energy Aktie: Irrsinn!", "A"), news("Siemens Energy Aktie: Vom KI-Gewinner zum KI-Opfer?", "B")]
+    assert len(cluster(items)) == 2
+
+
+def test_google_news_unknown_publisher_low_tier():
+    from news_scanner.analysis.text import source_tier
+
+    assert source_tier(news("x", "Google News SAP.DE", publisher="Börse Global")) == 2
+    assert source_tier(news("x", "Google News SAP.DE", publisher="Reuters")) == 5
+
+
+def test_name_followed_by_foreign_ticker_is_not_ours():
+    wl = [WatchItem("AAPL", "Apple")]
+    items = [news("Apple Hospitality REIT (APLE) Moves to Buy"), news("Apple (AAPL) beats estimates"),
+             news("Apple stock rises")]
+    assign_tickers(items, wl)
+    assert [bool(i.tickers) for i in items] == [False, True, True]

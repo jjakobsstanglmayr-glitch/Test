@@ -54,8 +54,8 @@ def signal_strength(
         score = min(score - 1.5, 7.0)
         notes.append("Gerücht −1,5 (max. 7)")
     if direction == "Neutral":
-        score -= 1.5
-        notes.append("Richtung unklar −1,5")
+        score = min(score - 1.5, 5.0)
+        notes.append("Richtung unklar −1,5 (max. 5)")
     return int(max(1, min(10, round(score)))), notes
 
 

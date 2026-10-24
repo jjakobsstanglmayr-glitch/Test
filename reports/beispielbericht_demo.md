@@ -1,4 +1,4 @@
-# News-Scanner – Bericht vom 24.10.2026, 19:37 Uhr
+# News-Scanner – Bericht vom 24.10.2026, 20:01 Uhr
 
 > **DEMO-BERICHT:** Erzeugt mit `--demo` aus den mitgelieferten Beispieldaten (`news_scanner/demo/`). Meldungen, Insider-Geschäfte, Reddit-Zahlen und Kurse sind **erfunden** und dienen nur dazu, Ablauf und Format zu zeigen.
 
@@ -12,7 +12,7 @@
 | 2 | **HLXT** | 🟢 Long | 8/10 | Zulassung | bereits reagiert |
 | 3 | **NWE.DE** | 🟢 Long | 8/10 | Prognoseänderung, Quartalszahlen | noch nicht reagiert |
 | 4 | **APXC** | 🟢 Long | 7/10 | Übernahme/Fusion | noch nicht reagiert |
-| 5 | **BVR.DE** | 🔴 Short | 6/10 | Prognoseänderung, Quartalszahlen | bereits reagiert |
+| 5 | **BVR.DE** | 🔴 Short | 6/10 | Prognoseänderung, Herabstufung | bereits reagiert |
 
 ### 1. QGRD – Quantum Grid  ·  🟢 Long  ·  Signalstärke **10/10**
 
@@ -107,7 +107,7 @@ Signalstärke: Katalysator +3,0 · Glaubwürdigkeit +2,0 · 3 Quellen +1,0 · Te
 - **Kurs:** 23,52 EUR (+0,4 % ggü. Vortag) · RSI 40 · SMA20 24,30 · SMA50 24,33 · ATR 0,49 · Volumen 1,1× Ø
 
 **Was ist passiert?**
-- EQS-Adhoc: Nordwind Energie AG hebt Prognose für das Geschäftsjahr an — Prognoseänderung, Quartalszahlen; Quellen: EQS Ad-hoc; Glaubwürdigkeit 5,0/5
+- EQS-Adhoc: Nordwind Energie AG hebt Prognose für das Geschäftsjahr an — Prognoseänderung; Quellen: EQS Ad-hoc; Glaubwürdigkeit 5,0/5
 - Nordwind Energie hebt Prognose an – Quartalszahlen übertreffen Erwartungen — Prognoseänderung, Quartalszahlen; Quellen: Handelsblatt, finanzen.net; Glaubwürdigkeit 4,5/5
 - Insider: Kauf durch CFO; Cluster: 2 Insider kaufen innerhalb von 10 Tagen; Großer Betrag: Weber, Anna (Demo) ≈ 0,5× geschätztes Jahresgehalt (gesamt 452.650 EUR)
 - Reddit: 6 Beiträge mit Erwähnung in 24 h (Vortag: 1)
@@ -184,15 +184,15 @@ Signalstärke: Katalysator +3,0 · Glaubwürdigkeit +1,0 · 2 Quellen +0,5 · Te
 
 `██████░░░░`
 
-- **Katalysator:** Prognoseänderung, Quartalszahlen, Herabstufung
+- **Katalysator:** Prognoseänderung, Herabstufung
 - **Glaubwürdigkeit:** 5,0/5
 - **Kursreaktion:** bereits reagiert (-6,8 % / -1,8 ATR seit der Meldung)
 - **Kurs:** 71,62 EUR (-6,8 % ggü. Vortag) · RSI 25 · SMA20 80,68 · SMA50 87,04 · ATR 2,86 · Volumen 3,5× Ø
 
 **Was ist passiert?**
-- EQS-Adhoc: Bavaria Robotics AG senkt Umsatz- und Ergebnisprognose — Prognoseänderung, Quartalszahlen; Quellen: EQS Ad-hoc; Glaubwürdigkeit 5,0/5
-- Bavaria Robotics senkt Prognose – Aktie bricht ein — Prognoseänderung, Quartalszahlen; Quellen: Handelsblatt; Glaubwürdigkeit 4,0/5
-- Bavaria Robotics: Analyst stuft Aktie nach Gewinnwarnung ab — Prognoseänderung, Quartalszahlen, Herabstufung; Quellen: Der Aktionär; Glaubwürdigkeit 3,0/5
+- EQS-Adhoc: Bavaria Robotics AG senkt Umsatz- und Ergebnisprognose — Prognoseänderung; Quellen: EQS Ad-hoc; Glaubwürdigkeit 5,0/5
+- Bavaria Robotics senkt Prognose – Aktie bricht ein — Prognoseänderung; Quellen: Handelsblatt; Glaubwürdigkeit 4,0/5
+- Bavaria Robotics: Analyst stuft Aktie nach Gewinnwarnung ab — Prognoseänderung, Herabstufung; Quellen: Der Aktionär; Glaubwürdigkeit 3,0/5
 - Reddit: 4 Beiträge mit Erwähnung in 24 h (Vortag: 0)
 
 **Technische Bestätigung:**
@@ -321,9 +321,9 @@ Signalstärke: Katalysator +2,5 · Glaubwürdigkeit +2,0 · Technik 3/4 +2,2 · 
 - ⚠️ Negative Meldung: Bavaria Robotics senkt Prognose – Aktie bricht ein
 - ⚠️ Negative Meldung: Bavaria Robotics: Analyst stuft Aktie nach Gewinnwarnung ab
 - ⚠️ 1 Insider-Verkäufe, gesamt 752.800 EUR
-- 📰 [EQS-Adhoc: Bavaria Robotics AG senkt Umsatz- und Ergebnisprognose](https://demo.invalid/eqs/bavaria-adhoc) (Prognoseänderung, Quartalszahlen) – Short, Glaubwürdigkeit 5,0/5
-- 📰 [Bavaria Robotics senkt Prognose – Aktie bricht ein](https://demo.invalid/handelsblatt/bavaria-warnung) (Prognoseänderung, Quartalszahlen) – Short, Glaubwürdigkeit 4,0/5
-- 📰 [Bavaria Robotics: Analyst stuft Aktie nach Gewinnwarnung ab](https://demo.invalid/google/aktionaer-bavaria) (Prognoseänderung, Quartalszahlen, Herabstufung) – Short, Glaubwürdigkeit 3,0/5
+- 📰 [EQS-Adhoc: Bavaria Robotics AG senkt Umsatz- und Ergebnisprognose](https://demo.invalid/eqs/bavaria-adhoc) (Prognoseänderung) – Short, Glaubwürdigkeit 5,0/5
+- 📰 [Bavaria Robotics senkt Prognose – Aktie bricht ein](https://demo.invalid/handelsblatt/bavaria-warnung) (Prognoseänderung) – Short, Glaubwürdigkeit 4,0/5
+- 📰 [Bavaria Robotics: Analyst stuft Aktie nach Gewinnwarnung ab](https://demo.invalid/google/aktionaer-bavaria) (Prognoseänderung, Herabstufung) – Short, Glaubwürdigkeit 3,0/5
 - 🔻 Insider-Verkauf 17.10.2026: Huber, Max (Demo) (Vorstand) 752.800 EUR – [BaFin](https://portal.mvp.bafin.de/database/DealingsInfo/sucheForm.do?emittentIsin=DE000DEMO0002&emittentButton=Suche+Emittent)
 
 **HLXT**

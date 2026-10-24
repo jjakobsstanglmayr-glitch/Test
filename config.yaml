@@ -11,7 +11,8 @@ watchlist:
   - {ticker: TSLA, name: Tesla, land: US}
   - {ticker: PFE, name: Pfizer, land: US}
   - {ticker: SAP.DE, name: SAP, isin: DE0007164600, land: DE, reddit_ticker: SAP}
-  - {ticker: SIE.DE, name: Siemens, aliases: [Siemens AG], isin: DE0007236101, land: DE}
+  # ausschluss: Namen anderer Firmen, die den Suchbegriff enthalten
+  - {ticker: SIE.DE, name: Siemens, aliases: [Siemens AG], ausschluss: [Siemens Energy, Siemens Healthineers], isin: DE0007236101, land: DE}
   - {ticker: RHM.DE, name: Rheinmetall, isin: DE0007030009, land: DE}
   - {ticker: ALV.DE, name: Allianz, isin: DE0008404005, land: DE}
 
@@ -23,11 +24,13 @@ quellen:
   rss:
     aktiv: true
     feeds:
-      - {name: CNBC, url: "https://www.cnbc.com/id/100003114/device/rss/rss.html"}
-      - {name: CNBC Finance, url: "https://www.cnbc.com/id/10000664/device/rss/rss.html"}
+      # CNBC sperrt Cloud-Server (Akamai 403). Zu Hause funktioniert der Feed meist –
+      # dann "aktiv: true" setzen. Ersatz: Google News mit site:cnbc.com (siehe unten).
+      - {name: CNBC, url: "https://www.cnbc.com/id/100003114/device/rss/rss.html", aktiv: false}
+      - {name: CNBC Finance, url: "https://www.cnbc.com/id/10000664/device/rss/rss.html", aktiv: false}
       - {name: MarketWatch, url: "https://feeds.content.dowjones.io/public/rss/mw_topstories"}
-      - {name: Yahoo Finance, url: "https://finance.yahoo.com/news/rssindex"}
-      - {name: Handelsblatt, url: "https://www.handelsblatt.com/contentexport/feed/finanzen"}
+      # Yahoo hat seinen RSS-Index abgeschaltet → Ersatz über Google News (siehe unten).
+      - {name: Handelsblatt, url: "https://feeds.cms.handelsblatt.com/finanzen"}
       - {name: finanzen.net, url: "https://www.finanzen.net/rss/news"}
       - {name: Investing.com, url: "https://www.investing.com/rss/news_25.rss"}
 
@@ -38,12 +41,17 @@ quellen:
     # Reuters bietet keine eigenen RSS-Feeds mehr an – daher über Google News mit site:-Filter.
     seiten:
       - {name: Reuters, domain: reuters.com, suche: "stocks OR shares"}
+      - {name: CNBC, domain: cnbc.com, suche: "stocks OR shares"}
+      - {name: Yahoo Finance, domain: finance.yahoo.com, suche: "stock OR shares"}
+      # Ad-hoc-Meldungen (EQS/DGAP); EQS bietet derzeit keinen öffentlichen RSS-Feed an.
+      - {name: EQS Ad-hoc, abfrage: '"EQS-Adhoc" when:2d', sprache: de, art: adhoc}
 
   adhoc:
     aktiv: true
-    feeds:
-      # EQS News (früher DGAP). URL bei Bedarf an den aktuellen Feed anpassen.
-      - {name: EQS Ad-hoc, url: "https://www.eqs-news.com/de/feed/?newsType=ad-hoc", art: adhoc}
+    # Direkte Ad-hoc-RSS-Feeds (falls verfügbar). EQS hat seinen öffentlichen Feed eingestellt,
+    # daher laufen Ad-hoc-Meldungen derzeit über Google News (google_news.seiten → "EQS Ad-hoc").
+    feeds: []
+    #  - {name: EQS Ad-hoc, url: "https://…", art: adhoc}
 
   sec:
     aktiv: true

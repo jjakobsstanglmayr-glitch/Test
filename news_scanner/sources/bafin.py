@@ -130,7 +130,8 @@ def fetch_dealings(
         if not w.isin or w.land != "DE":
             continue
         try:
-            text = http.get_text(url_template.format(isin=w.isin))
+            # Die BaFin liefert UTF-8 (mit BOM), deklariert aber keinen Zeichensatz.
+            text = http.get(url_template.format(isin=w.isin)).content.decode("utf-8-sig", errors="replace")
             found = parse_csv(text, w.ticker, WEB_URL.format(isin=w.isin))
             trades.extend(t for t in found if t.date is None or t.date >= since)
         except Exception as exc:  # noqa: BLE001

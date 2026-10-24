@@ -272,7 +272,9 @@ class Scanner:
         for ticker, tstories in by_ticker.items():
             tstories.sort(key=lambda s: (catalyst_weight(s) * s.credibility, len(s.items)), reverse=True)
             best = tstories[0]
-            direction = best.direction
+            # Richtung aus den wichtigsten Storys des Werts gemeinsam, nicht nur aus einer
+            net = sum(s.direction_score for s in tstories[:3])
+            direction = "Long" if net >= 2 else "Short" if net <= -2 else "Neutral"
             sig = signals.get(ticker)
             if direction == "Neutral" and sig:
                 direction = "Long"
